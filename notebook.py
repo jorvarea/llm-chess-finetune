@@ -53,11 +53,11 @@ training_args = TrainingArguments(
     per_device_train_batch_size=4,
     gradient_accumulation_steps=2,
     num_train_epochs=3,
-    logging_steps=20,
+    logging_steps=100,
     save_steps=100,
     save_total_limit=2,
     fp16=False,
-    eval_steps=100,
+    eval_steps=500,
     logging_dir="./logs"
 )
 

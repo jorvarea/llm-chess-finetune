@@ -22,14 +22,16 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 
 # %% Load dataset and tokenize it
-dataset = load_dataset("Thytu/ChessInstruct", split="train[:1%]")
+train_dataset = load_dataset("Thytu/ChessInstruct", split="train[:90%]")
+eval_dataset  = load_dataset("Thytu/ChessInstruct", split="train[90%:]")
 
 def combine_input_output(example):
     # Format: <task/instruction> + <input> + <expected_output>
     example["text"] = f"{example['task']} {example['input']} {example['expected_output']}"
     return example
 
-dataset = dataset.map(combine_input_output)
+train_dataset = train_dataset.map(combine_input_output)
+eval_dataset = eval_dataset.map(combine_input_output)
 
 def tokenize_function(examples):
     tokens = tokenizer(
@@ -42,26 +44,28 @@ def tokenize_function(examples):
     tokens["labels"] = tokens["input_ids"]
     return tokens
 
-tokenized_dataset = dataset.map(tokenize_function, batched=True)
-
+tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
+tokenized_eval_dataset  = eval_dataset.map(tokenize_function, batched=True)
 
 # %% Training Configuration
 training_args = TrainingArguments(
     output_dir="./gemma-3-270m-lora",
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=4,
-    num_train_epochs=1,
-    logging_steps=10,
-    save_steps=50,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=2,
+    num_train_epochs=3,
+    logging_steps=20,
+    save_steps=100,
     save_total_limit=2,
-    fp16=False
+    fp16=False,
+    eval_steps=200
 )
 
 # %% Initialize Trainer
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_dataset
+    train_dataset=tokenized_train_dataset,
+    eval_dataset=tokenized_eval_dataset
 )
 
 # %% Train

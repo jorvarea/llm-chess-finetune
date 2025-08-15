@@ -1,3 +1,5 @@
-unsloth
 torch
-numpy
+transformers
+peft
+datasets
+tqdm

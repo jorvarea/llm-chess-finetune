@@ -57,7 +57,8 @@ training_args = TrainingArguments(
     save_steps=100,
     save_total_limit=2,
     fp16=False,
-    eval_steps=200
+    eval_steps=100,
+    logging_dir="./logs"
 )
 
 # %% Initialize Trainer

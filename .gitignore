@@ -1,2 +1,3 @@
 .venv
 gemma-3-270m-lora
+logs/
